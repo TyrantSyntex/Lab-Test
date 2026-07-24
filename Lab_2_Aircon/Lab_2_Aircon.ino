@@ -1,16 +1,7 @@
-/************************************************* ************************************************** ******
-* OPEN-SMART Rich Shield Lesson 7: Temperature measurement and display
-* Through the NTC temperature measurement module to obtain the temperature, and display on the digital tube. 
-*
-* The following functions are available:
-* temper.getTemperature(); // get the temperature value, and return float-point number 
-*
-* displayTemperature(int8_t temperature); // display temperature, at the end of the value of the word added C is the degree of Celsius
-*
-* disp.init(); // initialization
-* disp.display(int8_t DispData []); // display the numbers in the array
-* // For example, the array is {1,2,3,4}, then show 1234
-************************************************** ************************************************** *****/
+//Kaushik
+//2621874
+//DEEE/FT/1B/22
+//Aircon programme
 
 #include <Wire.h>
 
