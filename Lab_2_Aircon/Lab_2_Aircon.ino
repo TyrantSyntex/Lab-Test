@@ -8,7 +8,7 @@
 #include "RichShieldTM1637.h"
 #include "RichShieldNTC.h"
 
-#define NTC_PIN A1 //SIG pin of NTC module connect to A1 of IO Shield, that is pin A1 of OPEN-SMART UNO R3
+#define NTC_PIN A1 //SIG pin of NTC module cornnect to A1 of IO Shield, that is pin A1 of OPEN-SMART UNO R3
 NTC temper(NTC_PIN);  
 
 #define LED_BLUE 6
