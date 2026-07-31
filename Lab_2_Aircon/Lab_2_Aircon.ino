@@ -2,6 +2,9 @@
 //2621874
 //DEEE/FT/1B/22
 //Aircon programme
+//Tarun Kumar
+//P2603616
+//DEEE/FT/1B/22
 
 #include <Wire.h>
 
