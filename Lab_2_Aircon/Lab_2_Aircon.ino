@@ -55,11 +55,11 @@ void displayTemperature(int8_t temperature)
 	temp[3] = 12;	          //index of 'C' for celsius degree symbol.
 	disp.display(temp);
 
-	if(temperature <= 18)
+	if(temperature <= 20)
 	{
    digitalWrite(LED_BLUE, HIGH);
 	}
-	else if (temperature >= 27)
+	else if (temperature >= 28)
 	{
 		digitalWrite(LED_BLUE, HIGH);
 	}
