@@ -15,6 +15,7 @@ NTC temper(NTC_PIN);
 #define CLK 10//CLK of the TM1637 IC connect to D10 of OPEN-SMART UNO R3
 #define DIO 11//DIO of the TM1637 IC connect to D11 of OPEN-SMART UNO R3
 TM1637 disp(CLK,DIO);
+#define VR_PIN A0   // blue knob/potentiometer
 
 void setup()
 {
@@ -27,14 +28,16 @@ void loop()
 {
   float celsius;
   celsius = temper.getTemperature();
-  displayTemperature((int8_t)celsius);
+
+  int threshold = map(analogRead(VR_PIN), 0, 1023, 25, 35);  // knob sets 25-35°C
+
+  displayTemperature((int8_t)celsius, threshold);
   delay(1000);
 }
 
-void displayTemperature(int8_t temperature)
+void displayTemperature(int8_t temperature, int threshold)
 {
   int8_t original = temperature;   // save the real value before we chop it up for display
-
   int8_t temp[4];
   if(temperature < 0)
   {
@@ -43,24 +46,19 @@ void displayTemperature(int8_t temperature)
   }
   else if(temperature < 100) temp[0] = INDEX_BLANK;
   else temp[0] = temperature/100;
-
   temperature %= 100;
   temp[1] = temperature / 10;
   temp[2] = temperature % 10;
   temp[3] = 12;  // 'C' symbol
   disp.display(temp);
 
-  if(original <= 20)
+  if(original >= threshold)
   {
-    digitalWrite(LED_BLUE, HIGH);
-  }
-  else if(original >= 28)
-  {
-    digitalWrite(LED_BLUE, HIGH);
+    digitalWrite(LED_BLUE, HIGH);   // too hot based on knob setting -> aircon ON
   }
   else
   {
-    digitalWrite(LED_BLUE, LOW);
+    digitalWrite(LED_BLUE, LOW);    // below threshold -> aircon OFF
   }
 }
 /*********************************************************************************************************
