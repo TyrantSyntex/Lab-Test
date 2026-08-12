@@ -1,32 +1,39 @@
-#define BUTTON_K2 9
+#include <Wire.h>
+#include "RichShieldIRremote.h"
+
+// ---- IR remote ----
+#define RECV_PIN 2
+IRrecv IR(RECV_PIN);
+
+// ---- Mode LEDs ----
 #define LED_GREEN 5
 #define LED_YELLOW 7
 #define LED_RED 4
 int mode = 1;
 
-
-void setup() 
+void setup()
 {
-  // put your setup code here, to run once:
-  pinMode(BUTTON_K2, INPUT_PULLUP);
+  Serial.begin(9600);
+  IR.enableIRIn();
 
   pinMode(LED_GREEN, OUTPUT);
   pinMode(LED_YELLOW, OUTPUT);
   pinMode(LED_RED, OUTPUT);
 }
 
-void loop() 
+void loop()
 {
-  // put your main code here, to run repeatedly:
-  if (digitalRead(BUTTON_K2) == LOW) {
-    mode = mode + 1;
+  // Check remote for mode change
+  if (IR.decode()) {
+    if (IR.isReleased()) {
+      if (IR.keycode == 0xC) mode = 1;         // Button 1 -> Night Mode
+      else if (IR.keycode == 0x18) mode = 2;   // Button 2 -> Day Mode
+      else if (IR.keycode == 0x5E) mode = 3;   // Button 3 -> Outside Mode
 
-    if (mode == 4) 
-    {
-      mode = 1;
+      Serial.print("mode is now: ");
+      Serial.println(mode);
     }
-
-    delay(300);
+    IR.resume();
   }
 
   // Night Mode
@@ -34,7 +41,6 @@ void loop()
     digitalWrite(LED_GREEN, HIGH);
     digitalWrite(LED_YELLOW, LOW);
     digitalWrite(LED_RED, LOW);
-
     // Put Night Mode code here
   }
 
@@ -43,7 +49,6 @@ void loop()
     digitalWrite(LED_GREEN, LOW);
     digitalWrite(LED_YELLOW, HIGH);
     digitalWrite(LED_RED, LOW);
-
     // Put Day Mode code here
   }
 
@@ -52,7 +57,6 @@ void loop()
     digitalWrite(LED_GREEN, LOW);
     digitalWrite(LED_YELLOW, LOW);
     digitalWrite(LED_RED, HIGH);
-
     // Put Outside Mode code here
   }
 }
