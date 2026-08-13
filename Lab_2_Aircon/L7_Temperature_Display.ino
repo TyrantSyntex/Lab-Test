@@ -13,6 +13,7 @@ TM1637 disp(CLK, DIO);
 void setup() {
   disp.init();
   pinMode(BUZZER, OUTPUT);
+  digitalWrite(BUZZER, LOW);
 }
 
 void loop() {
@@ -20,13 +21,10 @@ void loop() {
   displayTemp(t);
 
   if (t > 28) {
-    digitalWrite(BUZZER, HIGH);
-    delay(200);
-    digitalWrite(BUZZER, LOW);
-    delay(200);
+    soundFireAlarm();
   } else {
     digitalWrite(BUZZER, LOW);
-    delay(1000);
+    delay(200);
   }
 }
 
@@ -38,4 +36,14 @@ void displayTemp(int t) {
     12
   };
   disp.display(d);
+}
+
+// Rising wail: pulses get faster and faster, then resets - like an ambulance siren
+void soundFireAlarm() {
+  for (int speed = 10; speed >= 1; speed--) {
+    digitalWrite(BUZZER, HIGH);
+    delay(speed);
+    digitalWrite(BUZZER, LOW);
+    delay(speed);
+  }
 }
