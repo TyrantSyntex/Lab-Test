@@ -1,14 +1,13 @@
 #include <Wire.h>
 #include "RichShieldIRremote.h"
 
-// ---- IR remote ----
 #define RECV_PIN 2
 IRrecv IR(RECV_PIN);
 
-// ---- Mode LEDs ----
 #define LED_GREEN 5
 #define LED_YELLOW 7
 #define LED_RED 4
+int ledPins[3] = {LED_GREEN, LED_YELLOW, LED_RED};   // array of LED pins
 int mode = 1;
 
 void setup()
@@ -16,19 +15,19 @@ void setup()
   Serial.begin(9600);
   IR.enableIRIn();
 
-  pinMode(LED_GREEN, OUTPUT);
-  pinMode(LED_YELLOW, OUTPUT);
-  pinMode(LED_RED, OUTPUT);
+  // Loop through array to set all 3 LEDs as OUTPUT
+  for (int i = 0; i < 3; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
 }
 
 void loop()
 {
-  // Check remote for mode change
   if (IR.decode()) {
     if (IR.isReleased()) {
-      if (IR.keycode == 0xC) mode = 1;         // Button 1 -> Night Mode
-      else if (IR.keycode == 0x18) mode = 2;   // Button 2 -> Day Mode
-      else if (IR.keycode == 0x5E) mode = 3;   // Button 3 -> Outside Mode
+      if (IR.keycode == 0xC) mode = 1;
+      else if (IR.keycode == 0x18) mode = 2;
+      else if (IR.keycode == 0x5E) mode = 3;
 
       Serial.print("mode is now: ");
       Serial.println(mode);
@@ -36,27 +35,27 @@ void loop()
     IR.resume();
   }
 
-  // Night Mode
+  updateModeLEDs();
+
   if (mode == 1) {
-    digitalWrite(LED_GREEN, HIGH);
-    digitalWrite(LED_YELLOW, LOW);
-    digitalWrite(LED_RED, LOW);
     // Put Night Mode code here
   }
-
-  // Day Mode
   if (mode == 2) {
-    digitalWrite(LED_GREEN, LOW);
-    digitalWrite(LED_YELLOW, HIGH);
-    digitalWrite(LED_RED, LOW);
     // Put Day Mode code here
   }
-
-  // Outside Mode
   if (mode == 3) {
-    digitalWrite(LED_GREEN, LOW);
-    digitalWrite(LED_YELLOW, LOW);
-    digitalWrite(LED_RED, HIGH);
     // Put Outside Mode code here
+  }
+}
+
+// Function: turns on only the LED matching current mode, turns off the rest
+void updateModeLEDs()
+{
+  for (int i = 0; i < 3; i++) {
+    if (i == (mode - 1)) {
+      digitalWrite(ledPins[i], HIGH);
+    } else {
+      digitalWrite(ledPins[i], LOW);
+    }
   }
 }
