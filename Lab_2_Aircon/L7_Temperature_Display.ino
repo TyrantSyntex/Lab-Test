@@ -10,37 +10,70 @@
 NTC temper(NTC_PIN);
 TM1637 disp(CLK, DIO);
 
-void setup() {
+void setup() 
+{
   disp.init();
   pinMode(BUZZER, OUTPUT);
   digitalWrite(BUZZER, LOW);
 }
 
-void loop() {
-  int t = (int)temper.getTemperature();
-  displayTemp(t);
+void loop() 
+{
+  int temperature = (int)temper.getTemperature();
+  displayTemp(temperature);
 
-  if (t > 28) {
+  if (temperature > 25) 
+  {
     soundFireAlarm();
-  } else {
+  } 
+
+  else 
+  {
     digitalWrite(BUZZER, LOW);
     delay(200);
   }
 }
 
-void displayTemp(int t) {
-  int8_t d[4] = {
-    (t >= 100) ? t / 100 : INDEX_BLANK,
-    (t / 10) % 10,
-    t % 10,
-    12
-  };
+// shows the temperature number on the 4-digit display
+void displayTemp(int temperature) 
+{
+  int hundreds;
+  if (temperature >= 100) 
+  {
+    hundreds = temperature / 100;
+  } 
+  
+  else 
+  {
+    hundreds = INDEX_BLANK;
+  }
+
+  int tens = (temperature / 10) % 10;
+  int ones = temperature % 10;
+
+  int digits[3];
+  digits[0] = hundreds;
+  digits[1] = tens;
+  digits[2] = ones;
+
+  int8_t d[4];
+
+  // put the digits into the display array using a loop
+  for (int i = 0; i < 3; i++) 
+  {
+    d[i] = digits[i];
+  }
+
+  d[3] = 12;   // shows the 'C' symbol
   disp.display(d);
 }
 
-// Rising wail: pulses get faster and faster, then resets - like an ambulance siren
-void soundFireAlarm() {
-  for (int speed = 10; speed >= 1; speed--) {
+// makes a rising siren sound, like an ambulance
+// starts slow and speeds up, then repeats
+void soundFireAlarm() 
+{
+  for (int speed = 10; speed >= 1; speed--) 
+  {
     digitalWrite(BUZZER, HIGH);
     delay(speed);
     digitalWrite(BUZZER, LOW);
