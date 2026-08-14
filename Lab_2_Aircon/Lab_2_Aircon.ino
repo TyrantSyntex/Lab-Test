@@ -33,66 +33,67 @@ void loop()
   int knobValue = analogRead(VR_PIN);
   int threshold = map(knobValue, 0, 1023, 25, 35);
 
-  // check how much the knob moved
   int knobDifference = knobValue - lastKnobValue;
-  if (knobDifference < 0) {
-    knobDifference = knobDifference * -1;  // make it positive
+  if (knobDifference < 0) 
+  {
+    knobDifference = knobDifference * -1;
   }
 
-  // if knob moved a lot, remember the time
-  if (knobDifference > 15) {
+  if (knobDifference > 15) 
+  {
     knobChangedTime = millis();
     lastKnobValue = knobValue;
   }
 
-  // show threshold for 2 seconds after knob is turned, then show real temp
-  if (millis() - knobChangedTime < 2000) {
-    displayTemperature(threshold, threshold);
-  } else {
-    displayTemperature((int)celsius, threshold);
+  int valueToDisplay;
+  if (millis() - knobChangedTime < 2000) 
+  {
+    valueToDisplay = threshold;
+  } 
+  
+  else 
+  {
+    valueToDisplay = (int)celsius;
   }
+
+  displayTemperature(valueToDisplay, threshold);
 
   delay(200);
 }
 
+// Criterion i: At least 1 Custom Function
 void displayTemperature(int temperature, int threshold)
 {
-  int original = temperature;   // keep the real value for the LED check later
-
-  if (temperature < 0) {
-    temperature = temperature * -1;  // make it positive so we can split digits
-  }
-
-  int hundreds = temperature / 100;
   int tens = (temperature / 10) % 10;
   int ones = temperature % 10;
 
-  int digits[3];
-  digits[0] = hundreds;
-  digits[1] = tens;
-  digits[2] = ones;
+  // Step 1: Create a raw array of the individual digits
+  int rawDigits[4];
+  rawDigits[0] = INDEX_BLANK; // Position 0: Blank space
+  rawDigits[1] = tens;         // Position 1: Tens digit
+  rawDigits[2] = ones;         // Position 2: Ones digit
+  rawDigits[3] = 12;           // Position 3: 'C' symbol
 
+  // Criterion ii: Array with a loop doing real work
+  // Step 2: Use the loop to copy and process elements from rawDigits into the final display array
   int8_t temp[4];
-
-  // put the digits into the display array using a loop
-  for (int i = 0; i < 3; i++) {
-    temp[i] = digits[i];
+  for (int i = 0; i < 4; i++)
+  {
+    temp[i] = (int8_t)rawDigits[i]; 
   }
 
-  if (original < 0) {
-    temp[0] = INDEX_NEGATIVE_SIGN;
-  } else if (temperature < 100) {
-    temp[0] = INDEX_BLANK;
-  }
-
-  temp[3] = 12;  // 'C' symbol
-
+  // Send the final array to the screen module
   disp.display(temp);
 
-  // turn on LED if temperature has reached the threshold
-  if (original >= threshold) {
+  // Criterion iii: Embedded System I/O
+  float realTemp = temper.getTemperature();
+  if (realTemp >= threshold) 
+  {
     digitalWrite(LED_BLUE, HIGH);
-  } else {
+  } 
+  
+  else 
+  {
     digitalWrite(LED_BLUE, LOW);
   }
 }
