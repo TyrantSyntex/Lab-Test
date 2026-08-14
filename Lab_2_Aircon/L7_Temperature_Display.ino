@@ -1,20 +1,25 @@
 #include <Wire.h>
 #include "RichShieldTM1637.h"
 #include "RichShieldNTC.h"
+#include "RichShieldPassiveBuzzer.h" // Added your passive buzzer library
 
 #define NTC_PIN A1
 #define CLK 10
 #define DIO 11
-#define BUZZER 3
+#define PassiveBuzzerPin 3 // Matches your music code setup
+
+// Define the frequencies for a clean emergency sound
+#define NOTE_M5  784
+#define NOTE_H5  1568
 
 NTC temper(NTC_PIN);
 TM1637 disp(CLK, DIO);
+PassiveBuzzer buz(PassiveBuzzerPin); // Initialize passive buzzer
 
 void setup() 
 {
   disp.init();
-  pinMode(BUZZER, OUTPUT);
-  digitalWrite(BUZZER, LOW);
+  // The buzzer library handles pin configuration automatically
 }
 
 void loop() 
@@ -26,15 +31,15 @@ void loop()
   {
     soundFireAlarm();
   } 
-
   else 
   {
-    digitalWrite(BUZZER, LOW);
+    // Ensure buzzer is quiet when temp is safe
+    buz.playTone(0, 0); 
     delay(200);
   }
 }
 
-// shows the temperature number on the 4-digit display
+// Shows the temperature number on the 4-digit display
 void displayTemp(int temperature) 
 {
   int hundreds;
@@ -42,7 +47,6 @@ void displayTemp(int temperature)
   {
     hundreds = temperature / 100;
   } 
-  
   else 
   {
     hundreds = INDEX_BLANK;
@@ -58,25 +62,23 @@ void displayTemp(int temperature)
 
   int8_t d[4];
 
-  // put the digits into the display array using a loop
   for (int i = 0; i < 3; i++) 
   {
     d[i] = digits[i];
   }
 
-  d[3] = 12;   // shows the 'C' symbol
+  d[3] = 12;   // Shows the 'C' symbol
   disp.display(d);
 }
 
-// makes a rising siren sound, like an ambulance
-// starts slow and speeds up, then repeats
+// Clean, loud, alternating electronic alarm sound
 void soundFireAlarm() 
 {
-  for (int speed = 10; speed >= 1; speed--) 
-  {
-    digitalWrite(BUZZER, HIGH);
-    delay(speed);
-    digitalWrite(BUZZER, LOW);
-    delay(speed);
-  }
+  // Play High Tone for 250 milliseconds
+  buz.playTone(NOTE_H5, 250);
+  delay(75); // Short pause to separate notes cleanly
+
+  // Play Medium-High Tone for 250 milliseconds
+  buz.playTone(NOTE_M5, 250);
+  delay(75);
 }
