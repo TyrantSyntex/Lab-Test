@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include <Wire.h>
 #include "RichShieldIRremote.h"
 
 #define RECV_PIN 2
@@ -16,15 +17,18 @@ void setup()
   IR.enableIRIn();
 
   // Loop through array to set all 3 LEDs as OUTPUT
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) 
+  {
     pinMode(ledPins[i], OUTPUT);
   }
 }
 
 void loop()
 {
-  if (IR.decode()) {
-    if (IR.isReleased()) {
+  if (IR.decode()) 
+  {
+    if (IR.isReleased()) 
+    {
       if (IR.keycode == 0xC) mode = 1;
       else if (IR.keycode == 0x18) mode = 2;
       else if (IR.keycode == 0x5E) mode = 3;
@@ -37,13 +41,16 @@ void loop()
 
   updateModeLEDs();
 
-  if (mode == 1) {
+  if (mode == 1) 
+  {
     // Put Night Mode code here
   }
-  if (mode == 2) {
+  if (mode == 2) 
+  {
     // Put Day Mode code here
   }
-  if (mode == 3) {
+  if (mode == 3) 
+  {
     // Put Outside Mode code here
   }
 }
@@ -51,10 +58,14 @@ void loop()
 // Function: turns on only the LED matching current mode, turns off the rest
 void updateModeLEDs()
 {
-  for (int i = 0; i < 3; i++) {
-    if (i == (mode - 1)) {
+  for (int i = 0; i < 3; i++) 
+  {
+    if (i == (mode - 1)) 
+    {
       digitalWrite(ledPins[i], HIGH);
-    } else {
+    } 
+    else
+    {
       digitalWrite(ledPins[i], LOW);
     }
   }
