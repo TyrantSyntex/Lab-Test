@@ -4,8 +4,8 @@
 //Aircon programme
 
 #include <Wire.h>
-#include "RichShieldTM1637.h"
-#include "RichShieldNTC.h"
+#include "RichShieldTM1637.h" // library for 7 segment
+#include "RichShieldNTC.h" // library for thermometer
 
 #define NTC_PIN A1
 NTC temper(NTC_PIN);
@@ -15,57 +15,57 @@ NTC temper(NTC_PIN);
 #define DIO 11
 TM1637 disp(CLK, DIO);
 
-#define VR_PIN A0
+#define VR_PIN A0 
 
-int lastKnobValue = 0;
-unsigned long knobChangedTime = 0;
+int lastKnobValue = 0; //stores last to compare
+unsigned long knobChangedTime = 0; // when it was last moved
 
 void setup()
 {
   disp.init();
-  delay(1000);
+  delay(1000); // time for display hardware to settle
   pinMode(LED_BLUE, OUTPUT);
 }
 
 void loop()
 {
-  float celsius = temper.getTemperature();
-  int knobValue = analogRead(VR_PIN);
-  int threshold = map(knobValue, 0, 1023, 25, 35);
+  float celsius = temper.getTemperature(); // read it as a decimal number
+  int knobValue = analogRead(VR_PIN); // reads position of knob
+  int threshold = map(knobValue, 0, 1023, 25, 35); // rescale a number from 25- 35
 
-  int knobDifference = knobValue - lastKnobValue;
+  int knobDifference = knobValue - lastKnobValue; // how much moved since last reading
   if (knobDifference < 0) 
   {
     knobDifference = knobDifference * -1;
   }
 
-  if (knobDifference > 15) 
+  if (knobDifference > 15) // treated as real delibrate knob adjustment
   {
     knobChangedTime = millis();
     lastKnobValue = knobValue;
   }
 
   int valueToDisplay;
-  if (millis() - knobChangedTime < 2000) 
+  if (millis() - knobChangedTime < 2000)  // shows the value of knob adjusted to for 2 seconds
   {
     valueToDisplay = threshold;
   } 
   
   else 
   {
-    valueToDisplay = (int)celsius;
+    valueToDisplay = (int)celsius; //else go back to showing current temperature
   }
 
-  displayTemperature(valueToDisplay, threshold);
+  displayTemperature(valueToDisplay, threshold); // update value
 
-  delay(200);
+  delay(200); // waits bedore loop repeats
 }
 
 // Criterion i: At least 1 Custom Function
 void displayTemperature(int temperature, int threshold)
 {
-  int tens = (temperature / 10) % 10;
-  int ones = temperature % 10;
+  int tens = (temperature / 10) % 10; //ones digit
+  int ones = temperature % 10; //tens digit
 
   // Step 1: Create a raw array of the individual digits
   int rawDigits[4];
@@ -79,14 +79,14 @@ void displayTemperature(int temperature, int threshold)
   int8_t temp[4];
   for (int i = 0; i < 4; i++)
   {
-    temp[i] = (int8_t)rawDigits[i]; 
+    temp[i] = (int8_t)rawDigits[i]; // converts 4 elements into 8bit integer
   }
 
   // Send the final array to the screen module
   disp.display(temp);
 
   // Criterion iii: Embedded System I/O
-  float realTemp = temper.getTemperature();
+  float realTemp = temper.getTemperature(); // takes fresh temperature reading
   if (realTemp >= threshold) 
   {
     digitalWrite(LED_BLUE, HIGH);
