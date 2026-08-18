@@ -135,7 +135,7 @@ void updateModeLEDs()
 }
 
 // checks temperature and sounds fire alarm if too hot
-void doFireAlarm()
+void doFireAlarm()                                                //To make siren beep faster lower the fireToneInterval
 {
   int temperature = (int)temper.getTemperature(); //read temp
 
