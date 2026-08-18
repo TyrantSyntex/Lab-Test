@@ -60,18 +60,18 @@ void setup()
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(LED_BLUE, OUTPUT);
 
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++) // sets all 3 modes in a compact block
   {
     pinMode(ledPins[i], OUTPUT);
   }
 
-  delay(1000);   // let the temp sensor settle
+  delay(1000);   // let the temp sensor settle by 1s
 }
 
 void loop()
 {
-  checkRemote();
-  updateModeLEDs();
+  checkRemote(); // update mode if button is pressed
+  updateModeLEDs(); // reflect what mode currently on
 
   // fire alarm checks in every mode, no matter what
   doFireAlarm();
@@ -101,20 +101,20 @@ void loop()
 }
 
 // checks the IR remote and switches mode
-void checkRemote()
+void checkRemote() //checks which button was pressed to update mode
 {
   if (IR.decode())
   {
-    if (IR.isReleased())
+    if (IR.isReleased()) // so that it does not keep repeating if someone holds it down
     {
-      if (IR.keycode == 0xC) mode = 1;
+      if (IR.keycode == 0xC) mode = 1; // what pressed causes what mode
       else if (IR.keycode == 0x18) mode = 2;
       else if (IR.keycode == 0x5E) mode = 3;
 
       Serial.print("mode is now: ");
       Serial.println(mode);
     }
-    IR.resume();
+    IR.resume(); // so IR continues and doesnt get stuck
   }
 }
 
@@ -137,7 +137,7 @@ void updateModeLEDs()
 // checks temperature and sounds fire alarm if too hot
 void doFireAlarm()
 {
-  int temperature = (int)temper.getTemperature();
+  int temperature = (int)temper.getTemperature(); //read temp
 
   if (temperature > FIRE_THRESHOLD)
   {
@@ -150,7 +150,7 @@ void doFireAlarm()
 
   if (fireAlarm == 1)
   {
-    if (millis() - fireToneTimer >= fireToneInterval)
+    if (millis() - fireToneTimer >= fireToneInterval) // asks has it been 250ms yet 
     {
       fireToneTimer = millis();
 
@@ -179,7 +179,7 @@ void doBurglar()
 
   if (armed == 1 && burglarAlarm == 0)
   {
-    checkLight();
+    checkLight(); // only when armed
   }
 
   // fire alarm gets the buzzer first if both go off at once
@@ -194,12 +194,12 @@ void checkButton()
 {
   int current = digitalRead(BUTTON);
 
-  if (lastButtonState == HIGH && current == LOW)
+  if (lastButtonState == HIGH && current == LOW) // checks for transition not the state
   {
     if (armed == 0)
     {
       armed = 1;
-      baseLight = analogRead(LDR_PIN);
+      baseLight = analogRead(LDR_PIN); // for the light to check later
     }
     else
     {
@@ -225,7 +225,7 @@ void checkLight()
     difference = difference * -1;   // make it positive
   }
 
-  if (difference > 80)
+  if (difference > 80) // if difference changes too much the alarm sound
   {
     burglarAlarm = 1;
   }
@@ -246,7 +246,7 @@ void playBurglarAlarm()
     }
   }
 
-  if (digitalRead(BUTTON) == LOW)
+  if (digitalRead(BUTTON) == LOW) // this is a seperate direct check of the button 
   {
     burglarAlarm = 0;
     armed = 0;
@@ -260,21 +260,21 @@ void doAircon()
 {
   float celsius = temper.getTemperature();
   int knobValue = analogRead(VR_PIN);
-  int threshold = map(knobValue, 0, 1023, 25, 35);
+  int threshold = map(knobValue, 0, 1023, 25, 35); // rescaling
 
-  int knobDifference = knobValue - lastKnobValue;
+  int knobDifference = knobValue - lastKnobValue; // how much movement
   if (knobDifference < 0)
   {
     knobDifference = knobDifference * -1;
   }
 
-  if (knobDifference > 15)
+  if (knobDifference > 15) // only real delibrate turns are detected 
   {
     knobChangedTime = millis();
     lastKnobValue = knobValue;
   }
 
-  if (millis() - knobChangedTime < 2000)
+  if (millis() - knobChangedTime < 2000) // changes between current and the change
   {
     airconValue = threshold;
   }
@@ -298,7 +298,7 @@ void updateDisplay()
 {
   int8_t d[4];
 
-  if (fireAlarm == 1)
+  if (fireAlarm == 1) // only one branch executes per call (fire take priority)
   {
     showTemp((int)temper.getTemperature());
   }
