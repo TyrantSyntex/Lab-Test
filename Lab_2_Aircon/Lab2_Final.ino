@@ -182,7 +182,7 @@ void doBurglar()
     checkLight(); // only when armed
   }
 
-  // fire alarm gets the buzzer first if both go off at once
+  // fire alarm gets the buzzer first if both go off at once, only make noise if alarming and the fire alarm isn't already using the buzzer — fire takes priority if both happen at once.
   if (burglarAlarm == 1 && fireAlarm == 0)
   {
     playBurglarAlarm();
